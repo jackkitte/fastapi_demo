@@ -2,6 +2,7 @@ version: '3'
 services:
   demo-app:
     build: .
+    container_name: demo-app
     volumes:
       - .venv:/src/.venv
       - .:/src
