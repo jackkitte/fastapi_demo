@@ -4,7 +4,6 @@ services:
     build: .
     container_name: demo-app
     volumes:
-      - .venv:/src/.venv
       - .:/src
     ports:
       - 8000:8000
