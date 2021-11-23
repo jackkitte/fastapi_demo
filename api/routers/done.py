@@ -1,11 +1,27 @@
-from fastapi import APIRouter
+import api.cruds.done as done_crud
+import api.schemas.done as done_schema
+from api.db import get_db
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
-@router.put("/tasks/{task_id}/done", response_model=None)
-async def mark_task_as_done(task_id: int):
-    return
 
-@router.delete("/tasks/{task_id}/done", response_model=None)
-async def unmark_task_as_done(task_id: int):
-    return
+@router.put(
+    "/tasks/{task_id}/done", response_model=done_schema.DoneResponse, status_code=201
+)
+async def mark_task_as_done(task_id: int, db: AsyncSession = Depends(get_db)):
+    done = await done_crud.get_done(db, task_id)
+    if done is not None:
+        raise HTTPException(status_code=404, detail="Done already exists")
+
+    return await done_crud.create_done(db, task_id)
+
+
+@router.delete("/tasks/{task_id}/done", response_model=None, status_code=204)
+async def unmark_task_as_done(task_id: int, db: AsyncSession = Depends(get_db)):
+    done = await done_crud.get_done(db, task_id)
+    if done is None:
+        raise HTTPException(status_code=404, detail="Done already exists")
+
+    return await done_crud.delete_done(db, done)
