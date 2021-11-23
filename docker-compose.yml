@@ -8,7 +8,7 @@ services:
     ports:
       - 8000:8000
 
-  db:
+  demo-db:
     image: mysql:8.0
     platform: linux/x86_64
     container_name: demo-db
