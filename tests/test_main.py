@@ -3,10 +3,10 @@ from typing import AsyncGenerator
 import pytest
 from api.db import Base, get_db
 from api.main import app
+from fastapi import status
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from starlette import status
 
 ASYNC_DB_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -31,7 +31,7 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
 @pytest.mark.asyncio
 async def test_create_and_read(async_client):
     response = await async_client.post("/tasks", json={"title": "テストタスク"})
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_201_CREATED
     response_obj = response.json()
     assert response_obj["title"] == "テストタスク"
 
@@ -45,18 +45,18 @@ async def test_create_and_read(async_client):
 @pytest.mark.asyncio
 async def test_done_flag(async_client):
     response = await async_client.post("/tasks", json={"title": "テストタスク2"})
-    assert response.status_code == status.status.HTTP_200_OK
+    assert response.status_code == status.HTTP_201_CREATED
     response_obj = response.json()
     assert response_obj["title"] == "テストタスク2"
 
     response = await async_client.put("/tasks/1/done")
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_201_CREATED
 
     response = await async_client.put("/tasks/1/done")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     response = await async_client.delete("/tasks/1/done")
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_204_NO_CONTENT
 
     response = await async_client.delete("/tasks/1/done")
     assert response.status_code == status.HTTP_404_NOT_FOUND
